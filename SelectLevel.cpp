@@ -47,7 +47,6 @@ void SelectLevel::InitSeparator()
 	//_bottomSeparation->SetFillColor(Color(255, 255, 255, 150));
 	allCanvas["SelectLevel"]->AddChild(_bottomSeparation);
 	_bottomSeparation->SetPosition(Vector2f(0.0f, windowSize.y - 60.0f));
-
 }
 
 void SelectLevel::InitLabel()
@@ -80,7 +79,6 @@ void SelectLevel::InitLabel()
 	_play->SetZOrder(2);
 	_play->SetPosition(Vector2f(windowSize.x * 0.875f, windowSize.y - 45.0f));
 	_play->SetFont("Pixel", TTF);
-
 }
 
 void SelectLevel::InitDescription()
@@ -173,6 +171,77 @@ void SelectLevel::InitRectangleTrackInfo(Track* _track)
 	allTracksCanvas.insert(make_pair(_track, _background));
 	_background->SetZOrder(0);
 	allCanvas["SelectLevel"]->AddChild(_background);
+}
+
+void SelectLevel::InitMainMenu()
+{
+	ImageWidget* _screenTitle = GetGameMode()->GetHUD()->SpawnWidget<ImageWidget>(RectangleShapeData(Vector2f(707.2f, 258.4), "ScreenTitle"),"ScreenTitle", Screen);
+	_screenTitle->SetZOrder(2);
+	_screenTitle->SetPosition(Vector2f(windowSize.x * 0.2f , windowSize.y * 0.1f));
+	//_screenTitle->SetFillColor(Color(100, 100, 255));
+	allCanvas["SelectLevel"]->AddChild(_screenTitle);
+
+	 //allButtons.push_back(new ButtonWidget("Button", Screen, _track));
+
+	 ButtonWidget* _playButton = GetGameMode()->GetHUD()->SpawnWidget<ButtonWidget>(RectangleShapeData(Vector2f(153.68f, 42.976f), "Play"), "Play", Screen);
+	 allCanvas["SelectLevel"]->AddChild(_playButton);
+	 _playButton->SetPosition(Vector2f(windowSize.x * 0.47f, windowSize.y * 0.6f));
+	 _playButton->BindOnClickAction([&]()
+		 {
+			 //TODO FAIRE AFFICHER LES AUTRES MENUS
+			 vector<string> _trackFolder = M_FILE.ReadFolder("Assets\\Tracks");
+			 for (string _track : _trackFolder)
+			 {
+				 allTracks.push_back(SpawnActor<Track>(_track));
+			 }
+			 Track* _track = allTracks[trackIndex];
+
+			 InitSeparator();
+			 InitLabel();
+			 InitDescription();
+
+			 if (ActionMap* _input = GetGameMode()->GetPlayerController()->GetInputManager().GetActionMapByName("SelectLevel"))
+			 {
+				 _input->Enable();
+			 }
+			 else
+			 {
+				 InitInput();
+			 }
+
+			 for (Track* _track : allTracks)
+			 {
+				 InitRectangleTrackInfo(_track);
+			 }
+
+			 musicIterator = allTracksCanvas.begin();
+			 (*musicIterator).first->PlayExtrait();
+			 WheelCanvas();
+		 });
+		_playButton->BindOnHoverAction([_playButton]()
+		 {
+			 _playButton->SetOutline(2.0f, Color(255, 255, 255, 255));
+		 });
+		_playButton->BindOnUnhoverAction([_playButton]()
+		 {
+			 _playButton->SetOutline(0.0f, Color(255, 255, 255, 255));
+		 });
+
+		ButtonWidget* _quitButton = GetGameMode()->GetHUD()->SpawnWidget<ButtonWidget>(RectangleShapeData(Vector2f(136.0f, 62.6875f), "Quit"), "Quit", Screen);
+		allCanvas["SelectLevel"]->AddChild(_quitButton);
+		_quitButton->SetPosition(Vector2f(windowSize.x * 0.47f, windowSize.y * 0.7f));
+		_quitButton->BindOnClickAction([&]()
+		{
+			//TODO Quitter le jeu
+		});
+		_quitButton->BindOnHoverAction([_quitButton]()
+		{
+			_quitButton->SetOutline(2.0f, Color(255, 255, 255, 255));
+		});
+		_quitButton->BindOnUnhoverAction([_quitButton]()
+		{
+			_quitButton->SetOutline(0.0f, Color(255, 255, 255, 255));
+		});
 }
 
 void SelectLevel::SetDescription(Track* _track)
@@ -291,37 +360,14 @@ void SelectLevel::InitLevel()
 	background->SetRotation(degrees(45));
 	//background->SetFillColor(Color(255, 255, 255, 100));
 
-	vector<string> _trackFolder = M_FILE.ReadFolder("Assets\\Tracks");
-	for (string _track : _trackFolder)
-	{
-		allTracks.push_back(SpawnActor<Track>(_track));
-	}
-	Track* _track = allTracks[trackIndex];
+	
 
-	//allButtons.push_back(new ButtonWidget("Button", Screen, _track));
-
-	InitSeparator();
-	InitLabel();
-	InitDescription();
+	InitMainMenu();
 
 	
-	if (ActionMap* _input = GetGameMode()->GetPlayerController()->GetInputManager().GetActionMapByName("SelectLevel"))
-	{
-		_input->Enable();
-	}
-	else
-	{
-		InitInput();
-	}
 
-	for (Track* _track : allTracks)
-	{
-		InitRectangleTrackInfo(_track);
-	}
-
-	musicIterator = allTracksCanvas.begin();
-	(*musicIterator).first->PlayExtrait();
-	WheelCanvas();
+	
+	
 	GetGameMode()->GetHUD()->AddToViewport(allCanvas["SelectLevel"]);
 }
 
