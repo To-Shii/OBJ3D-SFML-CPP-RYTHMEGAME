@@ -39,6 +39,14 @@ void Track::PlayExtrait() const
 	_sound->Play(music->GetDuration() / 2.0f, seconds(10.0f));
 }
 
+void Track::StopExtrait() const
+{
+	const string& _path = music->GetPath();
+	const string& _finalPath = _path.substr(0, _path.size() - 4);
+	SoundSample* _sound = level->SpawnSample<SoundSample>(_finalPath, MP3);
+	_sound->Stop();
+}
+
 void Track::Start(const string& _difficulty)
 {
 	if(beatMaps.contains(_difficulty))

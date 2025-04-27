@@ -47,6 +47,7 @@ void SelectLevel::InitSeparator()
 	//_bottomSeparation->SetFillColor(Color(255, 255, 255, 150));
 	allCanvas["SelectLevel"]->AddChild(_bottomSeparation);
 	_bottomSeparation->SetPosition(Vector2f(0.0f, windowSize.y - 60.0f));
+
 }
 
 void SelectLevel::InitLabel()
@@ -179,60 +180,37 @@ void SelectLevel::InitMainMenu()
 	_screenTitle->SetZOrder(2);
 	_screenTitle->SetPosition(Vector2f(windowSize.x * 0.2f , windowSize.y * 0.1f));
 	//_screenTitle->SetFillColor(Color(100, 100, 255));
-	allCanvas["SelectLevel"]->AddChild(_screenTitle);
+	allCanvas["MainMenu"]->AddChild(_screenTitle);
 
 	 //allButtons.push_back(new ButtonWidget("Button", Screen, _track));
 
 	 ButtonWidget* _playButton = GetGameMode()->GetHUD()->SpawnWidget<ButtonWidget>(RectangleShapeData(Vector2f(153.68f, 42.976f), "Play"), "Play", Screen);
-	 allCanvas["SelectLevel"]->AddChild(_playButton);
+	 allCanvas["MainMenu"]->AddChild(_playButton);
 	 _playButton->SetPosition(Vector2f(windowSize.x * 0.47f, windowSize.y * 0.6f));
-	 _playButton->BindOnClickAction([&]()
-		 {
-			 //TODO FAIRE AFFICHER LES AUTRES MENUS
-			 vector<string> _trackFolder = M_FILE.ReadFolder("Assets\\Tracks");
-			 for (string _track : _trackFolder)
-			 {
-				 allTracks.push_back(SpawnActor<Track>(_track));
-			 }
-			 Track* _track = allTracks[trackIndex];
 
-			 InitSeparator();
-			 InitLabel();
-			 InitDescription();
+	ButtonWidget* _quitButton = GetGameMode()->GetHUD()->SpawnWidget<ButtonWidget>(RectangleShapeData(Vector2f(136.0f, 62.6875f), "Quit"), "Quit", Screen);
+	allCanvas["MainMenu"]->AddChild(_quitButton);
+	_quitButton->SetPosition(Vector2f(windowSize.x * 0.47f, windowSize.y * 0.7f));
 
-			 if (ActionMap* _input = GetGameMode()->GetPlayerController()->GetInputManager().GetActionMapByName("SelectLevel"))
-			 {
-				 _input->Enable();
-			 }
-			 else
-			 {
-				 InitInput();
-			 }
-
-			 for (Track* _track : allTracks)
-			 {
-				 InitRectangleTrackInfo(_track);
-			 }
-
-			 musicIterator = allTracksCanvas.begin();
-			 (*musicIterator).first->PlayExtrait();
-			 WheelCanvas();
+		_playButton->BindOnClickAction([&]()
+		{
+			UnloadMainMenu();
+			
 		 });
 		_playButton->BindOnHoverAction([_playButton]()
-		 {
+		{
 			 _playButton->SetOutline(2.0f, Color(255, 255, 255, 255));
 		 });
 		_playButton->BindOnUnhoverAction([_playButton]()
-		 {
+		{
 			 _playButton->SetOutline(0.0f, Color(255, 255, 255, 255));
-		 });
+		});
 
-		ButtonWidget* _quitButton = GetGameMode()->GetHUD()->SpawnWidget<ButtonWidget>(RectangleShapeData(Vector2f(136.0f, 62.6875f), "Quit"), "Quit", Screen);
-		allCanvas["SelectLevel"]->AddChild(_quitButton);
-		_quitButton->SetPosition(Vector2f(windowSize.x * 0.47f, windowSize.y * 0.7f));
 		_quitButton->BindOnClickAction([&]()
 		{
 			//TODO Quitter le jeu
+			Unload();
+			exit(0);
 		});
 		_quitButton->BindOnHoverAction([_quitButton]()
 		{
@@ -242,6 +220,45 @@ void SelectLevel::InitMainMenu()
 		{
 			_quitButton->SetOutline(0.0f, Color(255, 255, 255, 255));
 		});
+}
+
+void SelectLevel::InitSelectLevel()
+{
+	vector<string> _trackFolder = M_FILE.ReadFolder("Assets\\Tracks");
+	for (string _track : _trackFolder)
+	{
+		allTracks.push_back(SpawnActor<Track>(_track));
+	}
+	Track* _track = allTracks[trackIndex];
+
+	InitSeparator();
+	InitLabel();
+	InitDescription();
+
+	if (ActionMap* _input = GetGameMode()->GetPlayerController()->GetInputManager().GetActionMapByName("SelectLevel"))
+	{
+		_input->Enable();
+	}
+	else
+	{
+		InitInput();
+	}
+
+	for (Track* _track : allTracks)
+	{
+		InitRectangleTrackInfo(_track);
+	}
+
+	musicIterator = allTracksCanvas.begin();
+	(*musicIterator).first->PlayExtrait();
+	WheelCanvas();
+}
+
+void SelectLevel::UnloadMainMenu()
+{
+	InitSelectLevel();
+	GetGameMode()->GetHUD()->RemoveFromViewport(allCanvas["MainMenu"]);
+	GetGameMode()->GetHUD()->AddToViewport(allCanvas["SelectLevel"]);
 }
 
 void SelectLevel::SetDescription(Track* _track)
@@ -353,6 +370,7 @@ void SelectLevel::InitLevel()
 	Super::InitLevel();
 	windowSize = GetWindowSize();
 	allCanvas.insert(make_pair("SelectLevel", GetGameMode()->GetHUD()->SpawnWidget<CanvasWidget>("SelectLevel", Screen)));
+	allCanvas.insert(make_pair("MainMenu", GetGameMode()->GetHUD()->SpawnWidget<CanvasWidget>("MainMenu", Screen)));
 	background = SpawnActor<MeshActor>(RectangleShapeData(windowSize, "background")); //TODO implemant Font
 	background->SetOriginAtMiddle();
 	background->SetPosition(windowSize / 2.0f);
@@ -360,15 +378,10 @@ void SelectLevel::InitLevel()
 	background->SetRotation(degrees(45));
 	//background->SetFillColor(Color(255, 255, 255, 100));
 
-	
 
 	InitMainMenu();
-
+	GetGameMode()->GetHUD()->AddToViewport(allCanvas["MainMenu"]);
 	
-
-	
-	
-	GetGameMode()->GetHUD()->AddToViewport(allCanvas["SelectLevel"]);
 }
 
 //bool SelectLevel::Update()

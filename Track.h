@@ -83,6 +83,7 @@ public:
 
 public:
 	void PlayExtrait() const;
+	void StopExtrait() const;
 
 	void Start(const string& _difficulty);
 	virtual void Tick(const float _deltaTime) override;

@@ -44,7 +44,11 @@ private:
 	void InitDescription();
 	void InitInput();
 	void InitRectangleTrackInfo(Track* _track);
+
 	void InitMainMenu();
+	void InitSelectLevel();
+	void UnloadMainMenu();
+
 
 	// SetLabel
 	void SetDescription(Track* _track);
