@@ -24,6 +24,7 @@ struct TrackData
 
 class Track : public Actor
 {
+	SoundSample* currentSound; 
 	string path;
 	TrackData info;
 	MusicSample* music;
@@ -35,7 +36,6 @@ public:
 	{
 		return info;
 	}
-
 	
 	FORCEINLINE string GetArtist() const
 	{
@@ -82,7 +82,7 @@ public:
 	~Track();
 
 public:
-	void PlayExtrait() const;
+	void PlayExtrait();
 	void StopExtrait() const;
 
 	void Start(const string& _difficulty);

@@ -10,6 +10,7 @@ Track::Track(Level* _level, const string& _path)
 	path = _path;
 	music = new MusicSample(_level,"..\\..\\" + _path + "\\music.mp3");
 	music->Stop();
+	currentSound = nullptr;
 	currentBeatMap = nullptr;
 	info = TrackData();
 	Init();
@@ -21,6 +22,7 @@ Track::Track(const Track& _other)
 	path = _other.path;
 	info = _other.info;
 	music = new MusicSample(*_other.music);
+	currentSound = _other.currentSound;
 	currentBeatMap = _other.currentBeatMap;
 	beatMaps = _other.beatMaps;
 	info = _other.info;
@@ -30,21 +32,26 @@ Track::~Track()
 {
 }
 
-void Track::PlayExtrait() const
+void Track::PlayExtrait()
 {
+	if (currentSound != nullptr)
+	{
+		currentSound->Pause();
+	}
 	const string& _path = music->GetPath();
 	const string& _finalPath = _path.substr(0, _path.size() - 4);
-	SoundSample* _sound = level->SpawnSample<SoundSample>(_finalPath, MP3);
-	_sound->Pause();
-	_sound->Play(music->GetDuration() / 2.0f, seconds(10.0f));
+	currentSound = level->SpawnSample<SoundSample>(_finalPath, MP3);
+	currentSound->Pause();
+	currentSound->Play(music->GetDuration() / 2.0f, seconds(10.0f));
 }
 
 void Track::StopExtrait() const
 {
-	const string& _path = music->GetPath();
-	const string& _finalPath = _path.substr(0, _path.size() - 4);
-	SoundSample* _sound = level->SpawnSample<SoundSample>(_finalPath, MP3);
-	_sound->Stop();
+	if (currentSound != nullptr) 
+	{
+		currentSound->Pause();
+		currentSound->Stop();
+	}
 }
 
 void Track::Start(const string& _difficulty)

@@ -271,6 +271,7 @@ void SelectLevel::SetDescription(Track* _track)
 void SelectLevel::ChangeIterator(bool _isUp)
 {
 	//M_AUDIO.Stop();
+	(*musicIterator).first->StopExtrait();
 	if (_isUp)
 	{
 		if (musicIterator == --allTracksCanvas.end())
